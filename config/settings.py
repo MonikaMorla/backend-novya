@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 
 from pathlib import Path
 import os
+import dj_database_url
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -27,7 +28,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-here'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0']
+ALLOWED_HOSTS = ['novya-django-bze0g9hjegbve8dw.centralindia-01.azurewebsites.net', 'localhost',]
 
 
 # Application definition
@@ -98,17 +99,20 @@ WSGI_APPLICATION = 'config.wsgi.application'
 #         'NAME': BASE_DIR / 'db.sqlite3',
 #     }
 # }
+DATABASES = {
+    'default': dj_database_url.config(default=config('DATABASE_URL'))
+}
 
 # PostgreSQL Database Configuration - NOVYA Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'novya',  # Your database name
-        'USER': 'postgres',
-        'PASSWORD': '12345',  # Your PostgreSQL password
-        'HOST': 'localhost',
-        'PORT': '5432',
-    }
+#DATABASES = {
+ #   'default': {
+  #      'ENGINE': 'django.db.backends.postgresql',
+   #     'NAME': 'novya',  # Your database name
+    #    'USER': 'postgres',
+     #   'PASSWORD': '12345',  # Your PostgreSQL password
+      #  'HOST': 'localhost',
+       # 'PORT': '5432',
+    #}
 }
 
 
