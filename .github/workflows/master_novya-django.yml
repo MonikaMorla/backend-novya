@@ -24,7 +24,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Collect static files (optional)
+      - name: Collect static files
         run: |
           python manage.py collectstatic --noinput || echo "No static files found"
 
