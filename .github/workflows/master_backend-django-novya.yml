@@ -32,7 +32,7 @@ jobs:
         run: |
           python manage.py collectstatic --noinput || echo "No static files found"
 
-      # 5️⃣ Upload artifact to use in deploy job
+      # 5️⃣ Upload artifact to be used in deployment
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
@@ -50,22 +50,17 @@ jobs:
     needs: build
 
     steps:
-      # 6️⃣ Download artifact from build
+      # 6️⃣ Download artifact
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: django-app
 
-      # ✅ FIXED: Use creds instead of publish-profile
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BD2603BB7D2B4BA6830D587FC0DD476E }}
-
-      # ✅ Deploy to Azure
+      # ✅ Direct deploy to Azure using publish profile (no login step)
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
           app-name: 'backend-django-novya'
           slot-name: 'Production'
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_BD2603BB7D2B4BA6830D587FC0DD476E }}
           package: .
