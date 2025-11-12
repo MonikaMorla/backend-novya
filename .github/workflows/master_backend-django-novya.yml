@@ -63,4 +63,5 @@ jobs:
         with:
           app-name: 'backend-django-novya'
           slot-name: 'Production'
+
           publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_7662257398B64D6297C9F3A42EA21B6A }}
