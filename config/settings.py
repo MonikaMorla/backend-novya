@@ -21,6 +21,7 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = [
     'backend-django-novya.azurewebsites.net',
+    'novya-django-bze0g9hjegbve8dw.centralindia-01.azurewebsites.net',
     'localhost',
     '127.0.0.1',
 ]
