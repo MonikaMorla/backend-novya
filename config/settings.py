@@ -93,27 +93,17 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+import dj_database_url
+
+# Use DATABASE_URL environment variable (works for Azure)
 DATABASES = {
     'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
 
-# PostgreSQL Database Configuration - NOVYA Database
-#DATABASES = {
- #   'default': {
-  #      'ENGINE': 'django.db.backends.postgresql',
-   #     'NAME': 'novya',  # Your database name
-    #    'USER': 'postgres',
-     #   'PASSWORD': '12345',  # Your PostgreSQL password
-      #  'HOST': 'localhost',
-       # 'PORT': '5432',
-    #}
-#}
+# If DATABASE_URL is not set, Django will fail to connect — make sure to define it
+# in Azure App Service → Configuration → Application Settings:
+# DATABASE_URL = postgres://<username>:<password>@<host>:5432/<database_name>
+
 
 
 # Password validation
