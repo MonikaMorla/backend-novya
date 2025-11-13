@@ -7,6 +7,8 @@ import os
 from datetime import timedelta
 import dj_database_url
 from decouple import config
+import re
+from django.core.exceptions import DisallowedHost
 
 # -------------------------------------------------------------
 # PATHS
@@ -24,28 +26,41 @@ ALLOWED_HOSTS = [
     'novya-django-bze0g9hjegbve8dw.centralindia-01.azurewebsites.net',
     'localhost',
     '127.0.0.1',
-    
+    '.azurewebsites.net',
 ]
+
+# -------------------------------------------------------------
+# ALLOW INTERNAL AZURE HEALTH PROBES (Fix 169.254.x.x Issue)
+# -------------------------------------------------------------
+class AllowAzureInternalIPs:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        host = request.get_host().split(':')[0]
+        if re.match(r"^169\.254\.\d+\.\d+$", host):
+            return self.get_response(request)
+        return self.get_response(request)
 
 # -------------------------------------------------------------
 # APPLICATIONS
 # -------------------------------------------------------------
 INSTALLED_APPS = [
-    # Default Django apps
+    # Django default apps
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    
-    # Third-party apps
+
+    # 3rd party apps
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
     'django_filters',
     'django_extensions',
-    
-    # Local apps
+
+    # Your local apps
     'core',
     'authentication',
     'courses',
@@ -61,6 +76,10 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+
+    # Allow Azure Internal IPs Middleware
+    'config.settings.AllowAzureInternalIPs',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -98,8 +117,6 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': dj_database_url.config(default=config('DATABASE_URL'))
 }
-# Example for Azure App Service:
-# DATABASE_URL = postgres://<username>:<password>@<host>:5432/<database_name>
 
 # -------------------------------------------------------------
 # PASSWORD VALIDATION
@@ -120,7 +137,7 @@ USE_I18N = True
 USE_TZ = True
 
 # -------------------------------------------------------------
-# STATIC & MEDIA FILES
+# STATIC & MEDIA
 # -------------------------------------------------------------
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
@@ -128,9 +145,6 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# -------------------------------------------------------------
-# DEFAULT PRIMARY KEY FIELD
-# -------------------------------------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # -------------------------------------------------------------
@@ -139,7 +153,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 AUTH_USER_MODEL = 'authentication.User'
 
 # -------------------------------------------------------------
-# REST FRAMEWORK CONFIG
+# REST FRAMEWORK
 # -------------------------------------------------------------
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
@@ -158,7 +172,7 @@ REST_FRAMEWORK = {
 }
 
 # -------------------------------------------------------------
-# JWT CONFIG
+# JWT SETTINGS
 # -------------------------------------------------------------
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
@@ -166,7 +180,7 @@ SIMPLE_JWT = {
     'ROTATE_REFRESH_TOKENS': True,
     'BLACKLIST_AFTER_ROTATION': True,
     'UPDATE_LAST_LOGIN': True,
-    'USER_ID_FIELD': 'userid',  # If your model has this field
+    'USER_ID_FIELD': 'userid',
     'USER_ID_CLAIM': 'user_id',
     'ALGORITHM': 'HS256',
     'SIGNING_KEY': SECRET_KEY,
@@ -174,17 +188,18 @@ SIMPLE_JWT = {
 }
 
 # -------------------------------------------------------------
-# CORS CONFIG
+# CORS SETTINGS
 # -------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = DEBUG
 
 # -------------------------------------------------------------
-# EMAIL CONFIG
+# EMAIL SETTINGS
 # -------------------------------------------------------------
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = config('EMAIL_HOST', default='smtp.gmail.com')
@@ -195,7 +210,7 @@ EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='noreply@novya.com')
 
 # -------------------------------------------------------------
-# CELERY CONFIG
+# CELERY
 # -------------------------------------------------------------
 CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
 CELERY_RESULT_BACKEND = config('CELERY_RESULT_BACKEND', default='redis://localhost:6379/0')
@@ -205,7 +220,7 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
 
 # -------------------------------------------------------------
-# LOGGING CONFIG
+# LOGGING
 # -------------------------------------------------------------
 LOG_DIR = BASE_DIR / 'logs'
 os.makedirs(LOG_DIR, exist_ok=True)
