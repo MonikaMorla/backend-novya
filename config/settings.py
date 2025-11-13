@@ -27,7 +27,6 @@ ALLOWED_HOSTS = [
     'localhost',
     '127.0.0.1',
     '169.254.129.4',
-
     '.azurewebsites.net',
 ]
 
