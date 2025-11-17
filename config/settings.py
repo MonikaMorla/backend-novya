@@ -8,7 +8,6 @@ from datetime import timedelta
 import dj_database_url
 from decouple import config
 import re
-from django.core.exceptions import DisallowedHost
 
 # -------------------------------------------------------------
 # PATHS
@@ -21,17 +20,15 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-your-secret-key-here')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+# -------------------------------------------------------------
+# ALLOWED HOSTS (Fix Azure internal IP & 169.254.x.x issue)
+# -------------------------------------------------------------
 ALLOWED_HOSTS = [
-    'backend-django-novya.azurewebsites.net',
-    'novya-django-bze0g9hjegbve8dw.centralindia-01.azurewebsites.net',
-    'localhost',
-    '127.0.0.1',
-     ALLOWED_HOSTS = ['*'],
-    '.azurewebsites.net',
+    '*',   # Allow all hosts - Recommended for Azure deployments
 ]
 
 # -------------------------------------------------------------
-# ALLOW INTERNAL AZURE HEALTH PROBES (Fix 169.254.x.x Issue)
+# ALLOW INTERNAL AZURE HEALTH PROBE IPs
 # -------------------------------------------------------------
 class AllowAzureInternalIPs:
     def __init__(self, get_response):
@@ -39,6 +36,7 @@ class AllowAzureInternalIPs:
 
     def __call__(self, request):
         host = request.get_host().split(':')[0]
+        # Allow Azure App Service internal IP range 169.254.x.x
         if re.match(r"^169\.254\.\d+\.\d+$", host):
             return self.get_response(request)
         return self.get_response(request)
@@ -78,7 +76,7 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
 
-    # Allow Azure Internal IPs Middleware
+    # Azure internal IP fix middleware
     'config.settings.AllowAzureInternalIPs',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
