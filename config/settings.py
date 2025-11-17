@@ -26,7 +26,7 @@ ALLOWED_HOSTS = [
     'novya-django-bze0g9hjegbve8dw.centralindia-01.azurewebsites.net',
     'localhost',
     '127.0.0.1',
-    '169.254.129.4',
+    'ALLOWED_HOSTS = ['*']',
     '.azurewebsites.net',
 ]
 
