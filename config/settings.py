@@ -190,8 +190,7 @@ SIMPLE_JWT = {
 # CORS SETTINGS
 # -------------------------------------------------------------
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
+    "https://black-dune-047f16610.3.azurestaticapps.net",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
